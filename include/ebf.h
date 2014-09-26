@@ -24,6 +24,11 @@
 #ifndef EBF_H_
 #define EBF_H_
 
+// Include standard libraries
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 
 /**
  * @brief This object contains a chunk of Brainfuck instructions.
@@ -36,8 +41,9 @@
  */
 struct ebf_chunk_s
 {
-    char *instruction_array;
-    unsigned int instruction_array_length;
+    int8_t *instruction_array;
+    uint32_t starting_instruction;
+    uint32_t instruction_array_length;
 };
 typedef struct ebf_chunk_s ebf_chunk_t;
 
@@ -66,20 +72,44 @@ typedef struct ebf_chunk_s ebf_chunk_t;
  */
 struct ebf_attr_s
 {
-    char eof;
+    struct
+    {
+        int8_t eof;
+        bool wrap_data_pointer;
+    } interpreter;
     
     struct
     {
-        unsigned char continuous :1; 
+        bool continuous; 
     } processing;
     
     struct
     {
-        unsigned char max_loop_depth;
+        uint8_t max_loop_depth;
     } memory;
 };
 typedef struct ebf_attr_s ebf_attr_t;
-    
+
+
+/**
+ * @brief This enumeration defines all the valid error codes that may be returned by an EBF
+ * function.
+ *
+ * @details Nothing here yet.
+ *
+ * @public
+ */
+enum ebf_error_e
+{
+    EBF_E_NONE       = 0,
+    EBF_E_INVALID    = -1,
+    EBF_E_ALLOC      = -2,
+    EBF_E_INPUT      = -3,
+    EBF_E_WOULDBLOCK = -4,
+    EBF_E_UNKNOWN    = INT8_MIN
+};
+typedef enum ebf_error_e ebf_error_t;
+
 
 // Pre-declaration of ebf typedef
 struct ebf_s;
@@ -110,7 +140,7 @@ struct ebf_s
      *
      * @public
      */
-    void (* output)(char output);
+    void (* output)(int8_t output);
 
     /**
      * @brief The user supplied function called when an input instruction is reached.
@@ -122,7 +152,7 @@ struct ebf_s
      *
      * @public
      */
-    char (* input)(void);
+    int8_t (* input)(void);
 
     /**
      * @brief The user supplied function called when more instructions are needed.
@@ -136,7 +166,7 @@ struct ebf_s
      *
      * @public
      */
-    ebf_chunk_t (* next)(unsigned long program_counter);
+    ebf_chunk_t (* next)(uint32_t program_counter);
     
     // Public EBF functions
     /**
@@ -149,20 +179,22 @@ struct ebf_s
      *
      * @public
      */
-    void (* const init)(ebf_attr_t *attr, char *data_array, unsigned int data_array_length);
+    ebf_error_t (* const init)(ebf_attr_t *attr, uint8_t *data_array, uint32_t data_array_length);
 
     /**
      * @brief Starts processing of the given chunk of instructions.
      *
      * User may call this function to start the next chunk if continuous processing is not enabled.
      */
-    void (* const start)(ebf_chunk_t *chunk);
-    void (* const pause)(void);
-    void (* const unpause)(void);
+    ebf_error_t (* const process)(ebf_chunk_t *chunk);
+    ebf_error_t (* const pause)(void);
+    ebf_error_t (* const unpause)(void);
     // Zeros out data array, user may reinitialize the data_array pointer outside of ebf
-    void (* const reset)(void);
-    unsigned long (* const get_program_counter)(void);
-    void (* const clean_up)(void);
+    ebf_error_t (* const reset)(void);
+    uint32_t (* const get_program_counter)(void);
+    bool (* const is_valid)(void);
+    bool (* const is_processing)(void);
+    ebf_error_t (* const clean_up)(void);
     
     // Private members
     void *private;
