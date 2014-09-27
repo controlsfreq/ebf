@@ -85,7 +85,7 @@ struct ebf_attr_s
     
     struct
     {
-        uint8_t max_loop_depth;
+        uint8_t max_loops;
     } memory;
 };
 typedef struct ebf_attr_s ebf_attr_t;
@@ -106,6 +106,8 @@ enum ebf_error_e
     EBF_E_ALLOC      = -2,
     EBF_E_INPUT      = -3,
     EBF_E_WOULDBLOCK = -4,
+    EBF_E_LOOPMEM    = -5,
+    EBF_E_PARSING    = -6,
     EBF_E_UNKNOWN    = INT8_MIN
 };
 typedef enum ebf_error_e ebf_error_t;
