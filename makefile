@@ -20,14 +20,16 @@ INCLUDE_DIR=./include
 SRC_FILES=ebf.c
 TARGET=ebf.a
 
+all: build
+
 build: ebf.o
-	@${MKDIR} ${DIST_DIR}
-	${AR} ${AR_FLAGS} ${DIST_DIR}/${TARGET} ${BUILD_DIR}/ebf.o
+	@$(MKDIR) $(DIST_DIR)
+	$(AR) $(AR_FLAGS) $(DIST_DIR)/$(TARGET) $(BUILD_DIR)/ebf.o
 
 .PHONY: clean
 clean:
-	@${RM} ${BUILD_DIR}/*.o
+	@$(RM) $(BUILD_DIR)/*.o
 
-ebf.o: ${SOURCE_DIR}/ebf.c ${INCLUDE_DIR}/ebf.h
-	@${MKDIR} ${BUILD_DIR}
-	${CC} ${CC_FLAGS} -I${INCLUDE_DIR} -c ${SOURCE_DIR}/ebf.c -o ${BUILD_DIR}/ebf.o
+ebf.o: $(SOURCE_DIR)/ebf.c $(INCLUDE_DIR)/ebf.h
+	@$(MKDIR) $(BUILD_DIR)
+	$(CC) $(CC_FLAGS) -I$(INCLUDE_DIR) -c $(SOURCE_DIR)/ebf.c -o $(BUILD_DIR)/ebf.o
