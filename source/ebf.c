@@ -1,12 +1,9 @@
 /* -*- mode: C; tab-width: 4; -*- */
 /**
- * @file ebf.c
- *
- * @brief This file contains the implementation code for the Embedded Brainfuck (EBF) interpreter.
- *
- * @date 9/25/2014
+ * @file   ebf.c
+ * @brief  This file contains the implementation code for the Embedded Brainfuck (EBF) interpreter.
+ * @date   2014-09-25
  * @author Liam Bucci
- * @version 0.1.0
  *
  * @details Nothing here yet.
  *
@@ -26,6 +23,11 @@
 
 // Include EBF headers
 #include <ebf.h>
+
+/* Internal Variables =============================================================================================== */
+
+static const char* EBF_VERSION_STRING = "EBF_MAJOR_VERSION.EBF_MINOR_VERSION.EBF_PATCH_VERSION";
+
 
 // Public function implementation declarations
 static ebf_error_t init_(ebf_attr_t *attr, uint8_t *data_array, uint32_t data_array_length);
