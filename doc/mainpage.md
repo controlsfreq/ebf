@@ -5,8 +5,8 @@
 Extended or Embedded Brain Fuck (or EBF) is an extension of the Brain Fuck language to allow easier
 usage on embedded systems. EBF adds a number of extended commands that make writing to and from
 registers and various places in memory simpler. It also provides mechanisms for single depth
-function calls, literal writes into data memory, and the ability to override the stdin and stdout
-operations defined in classic Brain Fuck.
+function calls, literal writes into data memory, and the ability to override the `_stdin` and
+`_stdout` operations defined in classic Brain Fuck.
 
 ## Overview
 
@@ -120,8 +120,9 @@ operation.
 * `<` - Decrement data pointer.
 * `+` - Increment value at data pointer.
 * `-` - Decrement value at data pointer.
-* `.` - Copy value at data pointer to `stdout` (Note: `stdout` must be defined at compile-time).
-* `,` - Copy value from `stdin` to current data pointer (Note: `stdin` must be defined at
+* `.` - Copy value at data pointer to `_stdout`. **Note:** `_stdout` must be defined at
+        compile-time.
+* `,` - Copy value from `_stdin` to current data pointer. **Note:** `_stdin` must be defined at
         compile-time).
 * `[` - If the current data value is zero, move the instruction pointer forward to one after the
         matching `]`.
@@ -141,100 +142,95 @@ data pointer).
 * `(x:n)` - An absolute addressed command, where `x` is the command and `n` is the address used for
             that command. The possible commands and their behaviors are shown below:
 
-            * `>` - Move the data pointer to the given address and store the previous address in
-                    the shadow data register. Note: Same behavior as `<`.
-            * `<` - Move the data pointer to the given address and store the previous address in
-                    the shadow data register. Note: Same behavior as `>`.
-            * `+` - Increment the data value at the absolute address `n`.
-            * `-` - Decrement the data value at the absolute address `n`.
-            * `.` - Copy the current data value to the data address indicated.
-            * `,` - Copy the data value from the address indicated to the current data value.
-            * `[` - If the data value at the absolute address `n` is zero, move the instruction
-                    pointer forward to one after the matching `]` (not necessarily absolutely
-                    addressed).
-            * `]` - If the data value at the absolute address `n` is non-zero, move the instruction
-                    pointer backward to one after the matching `[` (not necessarily an absolutely
-                    addressed).
-            * `&` - Bitwise AND the current data value and the value stored in the absolute address
-                    `n` and store the result in the current data cell.
-            * `|` - Bitwise OR the current data value and the value stored in the absolute address
-                    `n` and store the result in the current data cell.
-            * `^` - Bitwise XOR the current data value and the value stored in the absolute address
-                    `n` and store the result in the current data cell.
-            * `/` - Shift right the current data value by the value stored in the absolute address
-                    `n` and store the result in the current data cell.
-            * `\` - Shift left the current data value by the value stored in the absolute address
-                    `n` and store the result in the current data cell.
+    * `>` - Move the data pointer to the given address and store the previous address in the shadow
+            data register. **Note:** Same behavior as `<`.
+    * `<` - Move the data pointer to the given address and store the previous address in the shadow
+            data register. **Note:** Same behavior as `>`.
+    * `+` - Increment the data value at the absolute address `n`.
+    * `-` - Decrement the data value at the absolute address `n`.
+    * `.` - Copy the current data value to the data address indicated.
+    * `,` - Copy the data value from the address indicated to the current data value.
+    * `[` - If the data value at the absolute address `n` is zero, move the instruction pointer
+            forward to one after the matching `]` (not necessarily absolutely addressed).
+    * `]` - If the data value at the absolute address `n` is non-zero, move the instruction pointer
+            backward to one after the matching `[` (not necessarily an absolutely addressed).
+    * `&` - Bitwise AND the current data value and the value stored in the absolute address `n` and
+            store the result in the current data cell.
+    * `|` - Bitwise OR the current data value and the value stored in the absolute address `n` and
+            store the result in the current data cell.
+    * `^` - Bitwise XOR the current data value and the value stored in the absolute address `n` and
+            store the result in the current data cell.
+    * `/` - Shift right the current data value by the value stored in the absolute address `n` and
+            store the result in the current data cell.
+    * `\` - Shift left the current data value by the value stored in the absolute address `n` and
+            store the result in the current data cell.
 
-            Note: `n` must be within the range UINT_MIN to UINT_MAX unless otherwise specified.
+**Note:** `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
 
 * `[x:n]` - A relative addressed command, where `x` is the command and `n` is the offset used for
             that command. The possible commands and their behaviors are shown below:
 
-            * `>` - Increment the data pointer by the offset given and store the previous address
-                    in the shadow data register.
-            * `<` - Decrement the data pointer by the offset given and store the previous address
-                    in the shadow data register.
-            * `+` - Increment the data value at the relative address `n`.
-            * `-` - Decrement the data value at the relative address `n`.
-            * `.` - Copy the current data value to the data address formed by the current address
-                    offset by the given value. Note: May only offset in the positive direction.
-            * `,` - Copy into the current data value the data value from the address formed by the
-                    current address offset by the given value. Note: May only offset in the
-                    positive direction.
-            * `[` - If the data value at the relative address `n` is zero, move the instruction
-                    pointer forward to one after the matching `]` (not necessarily relatively
-                    addressed).
-            * `]` - If the data value at the relative address `n` is non-zero, move the instruction
-                    pointer backward to one after the matching `[` (not necessarily relatively
-                    addressed).
-            * `&` - Bitwise AND the current data value and the value stored in the relative address
-                    `n` and store the result in the current data cell.
-            * `|` - Bitwise OR the current data value and the value stored in the relative address
-                    `n` and store the result in the current data cell.
-            * `^` - Bitwise XOR the current data value and the value stored in the relative address
-                    `n` and store the result in the current data cell.
-            * `/` - Shift right the current data value by the value stored in the relative address
-                    `n` and store the result in the current data cell.
-            * `\` - Shift left the current data value by the value stored in the relative address
-                    `n` and store the result in the current data cell.
+    * `>` - Increment the data pointer by the offset given and store the previous address in the
+            shadow data register.
+    * `<` - Decrement the data pointer by the offset given and store the previous address in the
+            shadow data register.
+    * `+` - Increment the data value at the relative address `n`.
+    * `-` - Decrement the data value at the relative address `n`.
+    * `.` - Copy the current data value to the data address formed by the current address offset by
+            the given value.
+    * `,` - Copy into the current data value the data value from the address formed by the current
+            address offset by the given value.
+    * `[` - If the data value at the relative address `n` is zero, move the instruction pointer
+            forward to one after the matching `]` (not necessarily relatively addressed).
+    * `]` - If the data value at the relative address `n` is non-zero, move the instruction
+            pointer backward to one after the matching `[` (not necessarily relatively addressed).
+    * `&` - Bitwise AND the current data value and the value stored in the relative address `n` and
+            store the result in the current data cell.
+    * `|` - Bitwise OR the current data value and the value stored in the relative address `n` and
+            store the result in the current data cell.
+    * `^` - Bitwise XOR the current data value and the value stored in the relative address `n` and
+            store the result in the current data cell.
+    * `/` - Shift right the current data value by the value stored in the relative address `n` and
+            store the result in the current data cell.
+    * `\` - Shift left the current data value by the value stored in the relative address `n` and
+            store the result in the current data cell.
 
-            Note: `n` must be within the range INT_MIN to INT_MAX unless otherwise specified.
+**Note:** `n` must be within the range `INT_MIN` to `INT_MAX` unless otherwise specified.
 
 * `{x:n}` - A literal command, where `x` is the command and `n` is the literal value used for that
             command. The possible commands and their behaviors are shown below:
 
-            * `>` - Increment the data pointer by the offset given (does NOT store the previous
-                    address in the shadow data register).
-            * `<` - Decrement the data pointer by the offset given (does NOT store the previous
-                    address in the shadow data register).
-            * `+` - Increment the data value by the literal value `n`.
-            * `-` - Decrement the data value by the literal value `n`.
-            * `.` - Write the literal value `n` to `stdout`. Note: `n` must be between DATA_MIN and
-                    DATA_MAX.
-            * `,` - Write the literal value `n` to the current data cell. Note: `n` must be between
-                    DATA_MIN and DATA_MAX.
-            * `[` - If the literal value `n` is zero, move the instruction pointer forward to one
-                    after the matching `]` (not necessarily a literal instruction).
-            * `]` - If the literal value `n` is non-zero, move the instruction pointer backward to
-                    one after the matching `[` (not necessarily a literal instruction).
-            * `&` - Bitwise AND the current data value and the literal value `n` and store the
-                    result in the current data cell.
-            * `|` - Bitwise OR the current data value and the literal value `n` and store the
-                    result in the current data cell.
-            * `^` - Bitwise XOR the current data value and the literal value `n` and store the
-                    result in the current data cell.
-            * `/` - Shift right the current data value by the literal value `n` and store the
-                    result in the current data cell.
-            * `\` - Shift left the current data value by the literal value `n` and store the
-                    result in the current data cell.
+    * `>` - Increment the data pointer by the offset given (does NOT store the previous address in
+            the shadow data register).
+    * `<` - Decrement the data pointer by the offset given (does NOT store the previous address in
+            the shadow data register).
+    * `+` - Increment the data value by the literal value `n`.
+    * `-` - Decrement the data value by the literal value `n`.
+    * `.` - Write the literal value `n` to `_stdout`. **Note:** `n` must be between DATA_MIN and
+            DATA_MAX.
+    * `,` - Write the literal value `n` to the current data cell. **Note:** `n` must be between
+            DATA_MIN and DATA_MAX.
+    * `[` - If the literal value `n` is zero, move the instruction pointer forward to one after the
+            matching `]` (not necessarily a literal instruction).
+    * `]` - If the literal value `n` is non-zero, move the instruction pointer backward to one
+            after the matching `[` (not necessarily a literal instruction).
+    * `&` - Bitwise AND the current data value and the literal value `n` and store the result in
+            the current data cell.
+    * `|` - Bitwise OR the current data value and the literal value `n` and store the result in the
+            current data cell.
+    * `^` - Bitwise XOR the current data value and the literal value `n` and store the result in
+            the current data cell.
+    * `/` - Shift right the current data value by the literal value `n` and store the result in the
+            current data cell.
+    * `\` - Shift left the current data value by the literal value `n` and store the result in the
+            current data cell.
 
-            Note: `n` must be within the range UINT_MIN to UINT_MAX unless otherwise specified.
+Note: `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
 
 * `(@:id)` - Define the next instruction as identifier symbol `id`. Instructions may only be
              identified by a single identifier and identifiers may only be defined once.
 * `(*:id)` - Jump the instruction pointer to the given identifier and store the previous
              instruction address in the shadow instruction register.
-* `{{comment}}` - Anything wrapped in double curly braces (`{}`) is considered a comment and will
+* `{{comment}}` - Anything wrapped in double curly braces is considered a comment and will
                   be ignored. This allows the use of command characters in comments. All
                   non-command characters outside of a comment are still ignored.
