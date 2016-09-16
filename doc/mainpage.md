@@ -167,7 +167,7 @@ data pointer).
 
 **Note:** `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
 
-* `[x:n]` - A relative addressed command, where `x` is the command and `n` is the offset used for
+* `(x$n)` - A relative addressed command, where `x` is the command and `n` is the offset used for
             that command. The possible commands and their behaviors are shown below:
 
     * `>` - Increment the data pointer by the offset given and store the previous address in the
@@ -197,7 +197,7 @@ data pointer).
 
 **Note:** `n` must be within the range `INT_MIN` to `INT_MAX` unless otherwise specified.
 
-* `{x:n}` - A literal command, where `x` is the command and `n` is the literal value used for that
+* `(x#n)` - A literal command, where `x` is the command and `n` is the literal value used for that
             command. The possible commands and their behaviors are shown below:
 
     * `>` - Increment the data pointer by the offset given (does NOT store the previous address in
@@ -227,9 +227,9 @@ data pointer).
 
 Note: `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
 
-* `(@:id)` - Define the next instruction as identifier symbol `id`. Instructions may only be
+* `(@id)` - Define the next instruction as identifier symbol `id`. Instructions may only be
              identified by a single identifier and identifiers may only be defined once.
-* `(*:id)` - Jump the instruction pointer to the given identifier and store the previous
+* `(*id)` - Jump the instruction pointer to the given identifier and store the previous
              instruction address in the shadow instruction register.
 * `{{comment}}` - Anything wrapped in double curly braces is considered a comment and will
                   be ignored. This allows the use of command characters in comments. All
