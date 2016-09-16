@@ -1,0 +1,212 @@
+{{addu32big.ebf}}
+{{
+Adds two unsigned 32-bit numbers together.
+The first number must be stored in big endian format in the 4-7 cells.
+The second number must be stored in big endian format in the 8-11 cells.
+The result will be stored in big endian format in the 0-3 cells.
+The function must start with the data pointer at the zero cell.
+The function will return with the data pointer at the zero cell.
+The two input numbers are preserved.
+}}
+
+{{
+Cells:
+  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20
+[O1][O1][O1][O1][I1][I1][I1][I1][I2][I2][I2][I2][WW][WW][WW][WW][WW][WW][WW][WW][WW]
+
+0-3: Result
+4-7: Input 1
+8-11: Input 2
+12: A
+13: B
+14: Cin
+15: A^B
+16: (A^B)&Cin
+17: A&B
+18: S
+19: Current bit position
+20: Loop Counter
+}}
+
+([#0)
+(@addu32big)
+
+{{Initialize data cells}}
+(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>>>>>>>>>(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>(,#0)
+>(,#7)
+<<<<<<<<
+
+([#1)
+    {{Initialize A and B to bitmasks}}
+    (,#0x01)
+    (\$7)
+    (.$1)
+
+    {{Initialize Cin to the correct bit place}}
+    >>(\$5)<<
+
+    {{Set A and B}}
+    (&$-5)
+    >(&$-2)<
+
+    {{Calculate A^B}}
+    >>>(,$-3)(^$-2)<<<
+
+    {{Calculate (A^B)&Cin}}
+    >>>>(,$-1)(&$-2)<<<<
+
+    {{Calculate A&B}}
+    >>>>>(,$-5)(&$-4)<<<<<
+
+    {{Calculate S}}
+    >>>>>>(,$-3)(^$-4)<<<<<<
+
+    {{Calculate Cout (Written back to Cin)}}
+    >>(,$2)(|$3)(/$5)<<
+
+    {{Copy S to result}}
+    (<$9)(|$15)%
+
+    {{Update bit position and loop counter}}
+    (>$7)+>-%
+(]$8)
+
+(>$7)(,#0)>(,#7)%
+
+([#1)
+    {{Initialize A and B to bitmasks}}
+    (,#0x01)
+    (\$7)
+    (.$1)
+
+    {{Initialize Cin to the correct bit place}}
+    >>(\$5)<<
+
+    {{Set A and B}}
+    (&$-6)
+    >(&$-3)<
+
+    {{Calculate A^B}}
+    >>>(,$-3)(^$-2)<<<
+
+    {{Calculate (A^B)&Cin}}
+    >>>>(,$-1)(&$-2)<<<<
+
+    {{Calculate A&B}}
+    >>>>>(,$-5)(&$-4)<<<<<
+
+    {{Calculate S}}
+    >>>>>>(,$-3)(^$-4)<<<<<<
+
+    {{Calculate Cout (Written back to Cin)}}
+    >>(,$2)(|$3)(/$5)<<
+
+    {{Copy S to result}}
+    (<$10)(|$16)%
+
+    {{Update bit position and loop counter}}
+    (>$7)+>-%
+(]$8)
+
+(>$7)(,#0)>(,#7)%
+
+([#1)
+    {{Initialize A and B to bitmasks}}
+    (,#0x01)
+    (\$7)
+    (.$1)
+
+    {{Initialize Cin to the correct bit place}}
+    >>(\$5)<<
+
+    {{Set A and B}}
+    (&$-7)
+    >(&$-4)<
+
+    {{Calculate A^B}}
+    >>>(,$-3)(^$-2)<<<
+
+    {{Calculate (A^B)&Cin}}
+    >>>>(,$-1)(&$-2)<<<<
+
+    {{Calculate A&B}}
+    >>>>>(,$-5)(&$-4)<<<<<
+
+    {{Calculate S}}
+    >>>>>>(,$-3)(^$-4)<<<<<<
+
+    {{Calculate Cout (Written back to Cin)}}
+    >>(,$2)(|$3)(/$5)<<
+
+    {{Copy S to result}}
+    (<$11)(|$17)%
+
+    {{Update bit position and loop counter}}
+    (>$7)+>-%
+(]$8)
+
+(>$7)(,#0)>(,#7)%
+
+([#1)
+    {{Initialize A and B to bitmasks}}
+    (,#0x01)
+    (\$7)
+    (.$1)
+
+    {{Initialize Cin to the correct bit place}}
+    >>(\$5)<<
+
+    {{Set A and B}}
+    (&$-8)
+    >(&$-5)<
+
+    {{Calculate A^B}}
+    >>>(,$-3)(^$-2)<<<
+
+    {{Calculate (A^B)&Cin}}
+    >>>>(,$-1)(&$-2)<<<<
+
+    {{Calculate A&B}}
+    >>>>>(,$-5)(&$-4)<<<<<
+
+    {{Calculate S}}
+    >>>>>>(,$-3)(^$-4)<<<<<<
+
+    {{Calculate Cout (Written back to Cin)}}
+    >>(,$2)(|$3)(/$5)<<
+
+    {{Copy S to result}}
+    (<$12)(|$18)%
+
+    {{Update bit position and loop counter}}
+    (>$7)+>-%
+(]$8)
+
+(<$12)
+!
+(]#0)
+
+>>>>
+(,#0x41).
+>(,#0x41).
+>(,#0x41).
+>(,#0xFF).
+>(,#0x21).
+>(,#0x21).
+>(,#0x21).
+>(,#0x22).
+<<<<<<<<<<<
+(*addu32big)
+.>.>.>.
+{{Expected output (4th char is garbage): AAA_!!!"bbc!}}
