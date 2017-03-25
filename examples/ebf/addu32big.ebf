@@ -209,4 +209,4 @@ Cells:
 <<<<<<<<<<<
 (*addu32big)
 .>.>.>.
-{{Expected output (4th char is garbage): AAA_!!!"bbc!}}
+{{Expected output (4th char is not displayable): AAA_!!!"bbc!}}

@@ -139,93 +139,833 @@ Extended commands are multi-character commands that generally perform multiple o
 invocation (e.g. modifying the data pointer by multiple cells while also shadowing the previous
 data pointer).
 
-* `(x:n)` - An absolute addressed command, where `x` is the command and `n` is the address used for
-            that command. The possible commands and their behaviors are shown below:
+<table>
+    <tr>
+        <th rowspan=2></th>
+        <th colspan=2>Location</th>
+        <th colspan=2>Value</th>
+    </tr>
+    <tr>
+        <th>Direct</th>
+        <th>Indirect</th>
+        <th>Direct</th>
+        <th>Indirect</th>
+    </tr>
+    <tr>
+        <th>Absolute</th>
+        <td><tt>(x@a)</tt></td>
+        <td><tt>(x@*a)</tt></td>
+        <td><tt>(x#n)</tt></td>
+        <td><tt>(x#*n)</tt></td>
+    </tr>
+    <tr>
+        <th>Relative</th>
+        <td><tt>(x@:n)</tt></td>
+        <td><tt>(x@:*n)</tt></td>
+        <td><tt>(x#:n)</tt></td>
+        <td><tt>(x#:*n)</tt></td>
+    </tr>
+</table>
 
-    * `>` - Move the data pointer to the given address and store the previous address in the shadow
-            data register. **Note:** Same behavior as `<`.
-    * `<` - Move the data pointer to the given address and store the previous address in the shadow
-            data register. **Note:** Same behavior as `>`.
-    * `+` - Increment the data value at the absolute address `n`.
-    * `-` - Decrement the data value at the absolute address `n`.
-    * `.` - Copy the current data value to the data address indicated.
-    * `,` - Copy the data value from the address indicated to the current data value.
-    * `[` - If the data value at the absolute address `n` is zero, move the instruction pointer
-            forward to one after the matching `]` (not necessarily absolutely addressed).
-    * `]` - If the data value at the absolute address `n` is non-zero, move the instruction pointer
-            backward to one after the matching `[` (not necessarily an absolutely addressed).
-    * `&` - Bitwise AND the current data value and the value stored in the absolute address `n` and
-            store the result in the current data cell.
-    * `|` - Bitwise OR the current data value and the value stored in the absolute address `n` and
-            store the result in the current data cell.
-    * `^` - Bitwise XOR the current data value and the value stored in the absolute address `n` and
-            store the result in the current data cell.
-    * `/` - Shift right the current data value by the value stored in the absolute address `n` and
-            store the result in the current data cell.
-    * `\` - Shift left the current data value by the value stored in the absolute address `n` and
-            store the result in the current data cell.
+<table>
+    <tr>
+        <th>Instruction</th>
+        <th>Action Type</th>
+        <th>Positioning</th>
+        <th>Indirection</th>
+        <th>Command</th>
+        <th>Equivalent C++</th>
+        <th>Behavior</th>
+    </tr>
 
-**Note:** `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
+    <tr>
+        <th rowspan=8>&gt;</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&gt;@n)</tt></td>
+        <td><tt>DP = n</tt></td>
+        <td>Set data pointer to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&gt;@*n)</tt></td>
+        <td><tt>DP = *n</tt></td>
+        <td>Set data pointer to address stored in cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&gt;@:n)</tt></td>
+        <td><tt>DP += n</tt></td>
+        <td>Move data pointer right by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&gt;@:*n)</tt></td>
+        <td><tt>DP += *(DP + n)</tt></td>
+        <td>Move data pointer right by value stored in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&gt;#n)</tt></td>
+        <td><tt>DP = n</tt></td>
+        <td>Set data pointer to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&gt;#*n)</tt></td>
+        <td><tt>DP = *n</tt></td>
+        <td>Set data pointer to address stored in cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&gt;#:n)</tt></td>
+        <td><tt>DP += n</tt></td>
+        <td>Move data pointer right by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&gt;#:*n)</tt></td>
+        <td><tt>DP += *(DP + n)</tt></td>
+        <td>Move data pointer right by value stored in relative address <tt>n</tt></td>
+    </tr>
 
-* `(x$n)` - A relative addressed command, where `x` is the command and `n` is the offset used for
-            that command. The possible commands and their behaviors are shown below:
+    <tr>
+        <th rowspan=8>&lt;</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&lt;@n)</tt></td>
+        <td><tt>DP = n</tt></td>
+        <td>Set data pointer to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&lt;@*n)</tt></td>
+        <td><tt>DP = *n</tt></td>
+        <td>Set data pointer to address stored in cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&lt;@:n)</tt></td>
+        <td><tt>DP -= n</tt></td>
+        <td>Move data pointer left by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&lt;@:*n)</tt></td>
+        <td><tt>DP -= *(DP + n)</tt></td>
+        <td>Move data pointer left by value stored in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&lt;#n)</tt></td>
+        <td><tt>DP = n</tt></td>
+        <td>Set data pointer to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&lt;#*n)</tt></td>
+        <td><tt>DP = *n</tt></td>
+        <td>Set data pointer to address stored in cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&lt;#:n)</tt></td>
+        <td><tt>DP -= n</tt></td>
+        <td>Move data pointer left by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&lt;#:*n)</tt></td>
+        <td><tt>DP -= *(DP + n)</tt></td>
+        <td>Move data pointer left by value stored in relative address <tt>n</tt></td>
+    </tr>
 
-    * `>` - Increment the data pointer by the offset given and store the previous address in the
-            shadow data register.
-    * `<` - Decrement the data pointer by the offset given and store the previous address in the
-            shadow data register.
-    * `+` - Increment the data value at the relative address `n`.
-    * `-` - Decrement the data value at the relative address `n`.
-    * `.` - Copy the current data value to the data address formed by the current address offset by
-            the given value.
-    * `,` - Copy into the current data value the data value from the address formed by the current
-            address offset by the given value.
-    * `[` - If the data value at the relative address `n` is zero, move the instruction pointer
-            forward to one after the matching `]` (not necessarily relatively addressed).
-    * `]` - If the data value at the relative address `n` is non-zero, move the instruction
-            pointer backward to one after the matching `[` (not necessarily relatively addressed).
-    * `&` - Bitwise AND the current data value and the value stored in the relative address `n` and
-            store the result in the current data cell.
-    * `|` - Bitwise OR the current data value and the value stored in the relative address `n` and
-            store the result in the current data cell.
-    * `^` - Bitwise XOR the current data value and the value stored in the relative address `n` and
-            store the result in the current data cell.
-    * `/` - Shift right the current data value by the value stored in the relative address `n` and
-            store the result in the current data cell.
-    * `\` - Shift left the current data value by the value stored in the relative address `n` and
-            store the result in the current data cell.
+    <tr>
+        <th rowspan=8>+</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(+@n)</tt></td>
+        <td><tt>*n += 1</tt></td>
+        <td>Increment value at cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(+@*n)</tt></td>
+        <td><tt>**n += 1</tt></td>
+        <td>Increment value at cell pointed to by address stored in <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(+@:n)</tt></td>
+        <td><tt>*(DP + n) += 1</tt></td>
+        <td>Increment value at cell in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(+@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) += 1</tt></td>
+        <td>Increment value at cell pointed to by relative address stored in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(+#n)</tt></td>
+        <td><tt>*DP += n</tt></td>
+        <td>Increment value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(+#*n)</tt></td>
+        <td><tt>*DP += *n</tt></td>
+        <td>Increment value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(+#:n)</tt></td>
+        <td><tt>*DP += *(DP + n)</tt></td>
+        <td>Increment value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(+#:*n)</tt></td>
+        <td><tt>*DP += *(DP + *(DP + n))</tt></td>
+        <td>Increment value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
 
-**Note:** `n` must be within the range `INT_MIN` to `INT_MAX` unless otherwise specified.
+    <tr>
+        <th rowspan=8>-</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(-@n)</tt></td>
+        <td><tt>*n -= 1</tt></td>
+        <td>Decrement value at cell <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(-@*n)</tt></td>
+        <td><tt>**n -= 1</tt></td>
+        <td>Decrement value at cell pointed to by address stored in <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(-@:n)</tt></td>
+        <td><tt>*(DP + n) -= 1</tt></td>
+        <td>Decrement value at cell in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(-@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) -= 1</tt></td>
+        <td>Decrement value at cell pointed to by relative address stored in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(-#n)</tt></td>
+        <td><tt>*DP -= n</tt></td>
+        <td>Decrement value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(-#*n)</tt></td>
+        <td><tt>*DP -= *n</tt></td>
+        <td>Decrement value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(-#:n)</tt></td>
+        <td><tt>*DP -= *(DP + n)</tt></td>
+        <td>Decrement value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(-#:*n)</tt></td>
+        <td><tt>*DP -= *(DP + *(DP + n))</tt></td>
+        <td>Decrement value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
 
-* `(x#n)` - A literal command, where `x` is the command and `n` is the literal value used for that
-            command. The possible commands and their behaviors are shown below:
+    <tr>
+        <th rowspan=8>.</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(.@n)</tt></td>
+        <td><tt>*n = *DP</tt></td>
+        <td>Set value at cell <tt>n</tt> to current cell value</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(.@*n)</tt></td>
+        <td><tt>**n = *DP</tt></td>
+        <td>Set value at cell pointed to by address stored in <tt>n</tt> to current cell value</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(.@:n)</tt></td>
+        <td><tt>*(DP + n) = *DP</tt></td>
+        <td>Set value at cell in relative address <tt>n</tt> to current cell value</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(.@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) = *DP</tt></td>
+        <td>Set value at cell pointed to by relative address stored in relative address <tt>n</tt> to current cell value</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(.#n)</tt></td>
+        <td><tt>_stdout &lt;&lt; n</tt></td>
+        <td>Write <tt>n</tt> to _stdout</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(.#*n)</tt></td>
+        <td><tt>_stdout &lt;&lt; *n</tt></td>
+        <td>Write value at address <tt>n</tt> to _stdout</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(.#:n)</tt></td>
+        <td><tt>_stdout &lt;&lt; *(DP + n)</tt></td>
+        <td>Write value at relative address <tt>n</tt> to _stdout</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(.#:*n)</tt></td>
+        <td><tt>_stdout &lt;&lt; *(DP + *(DP + n))</tt></td>
+        <td>Write value at relative address stored in relative address <tt>n</tt> to _stdout</td>
+    </tr>
 
-    * `>` - Increment the data pointer by the offset given (does NOT store the previous address in
-            the shadow data register).
-    * `<` - Decrement the data pointer by the offset given (does NOT store the previous address in
-            the shadow data register).
-    * `+` - Increment the data value by the literal value `n`.
-    * `-` - Decrement the data value by the literal value `n`.
-    * `.` - Write the literal value `n` to `_stdout`. **Note:** `n` must be between DATA_MIN and
-            DATA_MAX.
-    * `,` - Write the literal value `n` to the current data cell. **Note:** `n` must be between
-            DATA_MIN and DATA_MAX.
-    * `[` - If the literal value `n` is zero, move the instruction pointer forward to one after the
-            matching `]` (not necessarily a literal instruction).
-    * `]` - If the literal value `n` is non-zero, move the instruction pointer backward to one
-            after the matching `[` (not necessarily a literal instruction).
-    * `&` - Bitwise AND the current data value and the literal value `n` and store the result in
-            the current data cell.
-    * `|` - Bitwise OR the current data value and the literal value `n` and store the result in the
-            current data cell.
-    * `^` - Bitwise XOR the current data value and the literal value `n` and store the result in
-            the current data cell.
-    * `/` - Shift right the current data value by the literal value `n` and store the result in the
-            current data cell.
-    * `\` - Shift left the current data value by the literal value `n` and store the result in the
-            current data cell.
+    <tr>
+        <th rowspan=8>,</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(,@n)</tt></td>
+        <td><tt>_stdin &gt;&gt; *n</tt></td>
+        <td>Set value at cell <tt>n</tt> to next character in _stdin</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(,@*n)</tt></td>
+        <td><tt>_stdin &gt;&gt; **n</tt></td>
+        <td>Set value at cell pointed to by address stored in <tt>n</tt> to next character in _stdin</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(,@:n)</tt></td>
+        <td><tt>_stdin &gt;&gt; *(DP + n)</tt></td>
+        <td>Set value at cell in relative address <tt>n</tt> to next character in _stdin</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(,@:*n)</tt></td>
+        <td><tt>_stdin &gt;&gt; *(DP + *(DP + n))</tt></td>
+        <td>Set value at cell pointed to by relative address stored in relative address <tt>n</tt> to next character in _stdin</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(,#n)</tt></td>
+        <td><tt>*DP = n</tt></td>
+        <td>Write <tt>n</tt> to current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(,#*n)</tt></td>
+        <td><tt>*DP = *n</tt></td>
+        <td>Write value at address <tt>n</tt> to current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(,#:n)</tt></td>
+        <td><tt>*DP = *(DP + n)</tt></td>
+        <td>Write value at relative address <tt>n</tt> to current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(,#:*n)</tt></td>
+        <td><tt>*DP = *(DP + *(DP + n))</tt></td>
+        <td>Write value at relative address stored in relative address <tt>n</tt> to current cell</td>
+    </tr>
 
-Note: `n` must be within the range `UINT_MIN` to `UINT_MAX` unless otherwise specified.
+    <tr>
+        <th rowspan=8>[</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>([@n)</tt></td>
+        <td><tt>while( *n != 0 )</tt></td>
+        <td>Continue while value at cell <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>([@*n)</tt></td>
+        <td><tt>while( **n != 0 )</tt></td>
+        <td>Continue while value at cell pointed to by address stored in <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>([@:n)</tt></td>
+        <td><tt>while( *(DP + n) != 0 )</tt></td>
+        <td>Continue while value at cell in relative address <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>([@:*n)</tt></td>
+        <td><tt>while( *(DP + *(DP + n)) != 0 )</tt></td>
+        <td>Continue while value at cell pointed to by relative address stored in relative address <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>([#n)</tt></td>
+        <td><tt>while( *DP != n )</tt></td>
+        <td>Continue while current cell is not equal to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>([#*n)</tt></td>
+        <td><tt>while( *DP != *n )</tt></td>
+        <td>Continue while current cell is not equal to value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>([#:n)</tt></td>
+        <td><tt>while( *DP != *(DP + n) )</tt></td>
+        <td>Continue while current cell is not equal to value at relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>([#:*n)</tt></td>
+        <td><tt>while( *DP != *(DP + *(DP + n)) )</tt></td>
+        <td>Continue while current cell is not equal to value at relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>]</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(]@n)</tt></td>
+        <td><tt>do { } while( *n != 0 )</tt></td>
+        <td>Continue while value at cell <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(]@*n)</tt></td>
+        <td><tt>do { } while( **n != 0 )</tt></td>
+        <td>Continue while value at cell pointed to by address stored in <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(]@:n)</tt></td>
+        <td><tt>do { } while( *(DP + n) != 0 )</tt></td>
+        <td>Continue while value at cell in relative address <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(]@:*n)</tt></td>
+        <td><tt>do { } while( *(DP + *(DP + n)) != 0 )</tt></td>
+        <td>Continue while value at cell pointed to by relative address stored in relative address <tt>n</tt> is non-zero</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(]#n)</tt></td>
+        <td><tt>do { } while( *DP != n )</tt></td>
+        <td>Continue while current cell is not equal to <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(]#*n)</tt></td>
+        <td><tt>do { } while( *DP != *n )</tt></td>
+        <td>Continue while current cell is not equal to value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(]#:n)</tt></td>
+        <td><tt>do { } while( *DP != *(DP + n) )</tt></td>
+        <td>Continue while current cell is not equal to value at relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(]#:*n)</tt></td>
+        <td><tt>do { } while( *DP != *(DP + *(DP + n)) )</tt></td>
+        <td>Continue while current cell is not equal to value at relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>&amp;</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&amp;@n)</tt></td>
+        <td><tt>*n &amp;= *DP</tt></td>
+        <td>Bitwise AND the value at cell <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&amp;@*n)</tt></td>
+        <td><tt>**n &amp;= *DP</tt></td>
+        <td>Bitwise AND the value at cell pointed to by address stored in <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&amp;@:n)</tt></td>
+        <td><tt>*(DP + n) &amp;= *DP</tt></td>
+        <td>Bitwise AND the value at cell in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&amp;@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) &amp;= *DP</tt></td>
+        <td>Bitwise AND the value at cell pointed to by relative address stored in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(&amp;#n)</tt></td>
+        <td><tt>*DP &amp;= n</tt></td>
+        <td>Bitwise AND the value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&amp;#*n)</tt></td>
+        <td><tt>*DP &amp;= *n</tt></td>
+        <td>Bitwise AND the value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(&amp;#:n)</tt></td>
+        <td><tt>*DP &amp;= *(DP + n)</tt></td>
+        <td>Bitwise AND the value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(&amp;#:*n)</tt></td>
+        <td><tt>*DP &amp;= *(DP + *(DP + n))</tt></td>
+        <td>Bitwise AND the value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>|</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(|@n)</tt></td>
+        <td><tt>*n |= *DP</tt></td>
+        <td>Bitwise OR the value at cell <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(|@*n)</tt></td>
+        <td><tt>**n |= *DP</tt></td>
+        <td>Bitwise OR the value at cell pointed to by address stored in <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(|@:n)</tt></td>
+        <td><tt>*(DP + n) |= *DP</tt></td>
+        <td>Bitwise OR the value at cell in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(|@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) |= *DP</tt></td>
+        <td>Bitwise OR the value at cell pointed to by relative address stored in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(|#n)</tt></td>
+        <td><tt>*DP |= n</tt></td>
+        <td>Bitwise OR the value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(|#*n)</tt></td>
+        <td><tt>*DP |= *n</tt></td>
+        <td>Bitwise OR the value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(|#:n)</tt></td>
+        <td><tt>*DP |= *(DP + n)</tt></td>
+        <td>Bitwise OR the value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(|#:*n)</tt></td>
+        <td><tt>*DP |= *(DP + *(DP + n))</tt></td>
+        <td>Bitwise OR the value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>^</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(^@n)</tt></td>
+        <td><tt>*n ^= *DP</tt></td>
+        <td>Bitwise XOR the value at cell <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(^@*n)</tt></td>
+        <td><tt>**n ^= *DP</tt></td>
+        <td>Bitwise XOR the value at cell pointed to by address stored in <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(^@:n)</tt></td>
+        <td><tt>*(DP + n) ^= *DP</tt></td>
+        <td>Bitwise XOR the value at cell in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(^@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) ^= *DP</tt></td>
+        <td>Bitwise XOR the value at cell pointed to by relative address stored in relative address <tt>n</tt> with the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(^#n)</tt></td>
+        <td><tt>*DP ^= n</tt></td>
+        <td>Bitwise XOR the value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(^#*n)</tt></td>
+        <td><tt>*DP ^= *n</tt></td>
+        <td>Bitwise XOR the value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(^#:n)</tt></td>
+        <td><tt>*DP ^= *(DP + n)</tt></td>
+        <td>Bitwise XOR the value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(^#:*n)</tt></td>
+        <td><tt>*DP ^= *(DP + *(DP + n))</tt></td>
+        <td>Bitwise XOR the value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>/</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(/@n)</tt></td>
+        <td><tt>*n &gt;&gt;= *DP</tt></td>
+        <td>Bitwise right shift the value at cell <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(/@*n)</tt></td>
+        <td><tt>**n &gt;&gt;= *DP</tt></td>
+        <td>Bitwise right shift the value at cell pointed to by address stored in <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(/@:n)</tt></td>
+        <td><tt>*(DP + n) &gt;&gt;= *DP</tt></td>
+        <td>Bitwise right shift the value at cell in relative address <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(/@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) &gt;&gt;= *DP</tt></td>
+        <td>Bitwise right shift the value at cell pointed to by relative address stored in relative address <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(/#n)</tt></td>
+        <td><tt>*DP &gt;&gt;= n</tt></td>
+        <td>Bitwise right shift the value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(/#*n)</tt></td>
+        <td><tt>*DP &gt;&gt;= *n</tt></td>
+        <td>Bitwise right shift the value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(/#:n)</tt></td>
+        <td><tt>*DP &gt;&gt;= *(DP + n)</tt></td>
+        <td>Bitwise right shift the value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(/#:*n)</tt></td>
+        <td><tt>*DP &gt;&gt;= *(DP + *(DP + n))</tt></td>
+        <td>Bitwise right shift the value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=8>\</th>
+        <th rowspan=4>Location</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(\@n)</tt></td>
+        <td><tt>*n &lt;&lt;= *DP</tt></td>
+        <td>Bitwise left shift the value at cell <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(\@*n)</tt></td>
+        <td><tt>**n &lt;&lt;= *DP</tt></td>
+        <td>Bitwise left shift the value at cell pointed to by address stored in <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(\@:n)</tt></td>
+        <td><tt>*(DP + n) &lt;&lt;= *DP</tt></td>
+        <td>Bitwise left shift the value at cell in relative address <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(\@:*n)</tt></td>
+        <td><tt>*(DP + *(DP + n)) &lt;&lt;= *DP</tt></td>
+        <td>Bitwise left shift the value at cell pointed to by relative address stored in relative address <tt>n</tt> with the value in the current cell</td>
+    </tr>
+    <tr>
+        <th rowspan=4>Value</th>
+        <th rowspan=2>Absolute</th>
+        <th>Direct</th>
+        <td><tt>(\#n)</tt></td>
+        <td><tt>*DP &lt;&lt;= n</tt></td>
+        <td>Bitwise left shift the value at current cell by <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(\#*n)</tt></td>
+        <td><tt>*DP &lt;&lt;= *n</tt></td>
+        <td>Bitwise left shift the value at current cell by value at address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th rowspan=2>Relative</th>
+        <th>Direct</th>
+        <td><tt>(\#:n)</tt></td>
+        <td><tt>*DP &lt;&lt;= *(DP + n)</tt></td>
+        <td>Bitwise left shift the value at current cell by value in relative address <tt>n</tt></td>
+    </tr>
+    <tr>
+        <th>Indirect</th>
+        <td><tt>(\#:*n)</tt></td>
+        <td><tt>*DP &lt;&lt;= *(DP + *(DP + n))</tt></td>
+        <td>Bitwise left shift the value at current cell by value in relative address stored in relative address <tt>n</tt></td>
+    </tr>
+
+    <tr>
+        <th>Notes</th>
+        <td colspan=6>
+            <ul>
+                <li>Data Pointer (DP) is a pointer to the current cell in the data array.</li>
+                <li>Shadow Data Pointer (SDP) is a pointer that stores the address of another cell in the data array (may hold any addressable value).</li>
+                <li>_stdout is either an address or a writable file. It must be defined at compile-time.</li>
+                <li>_stdin is either an address or a readable file. It must be defined at compile-time.</li>
+            </ul>
+        </td>
+    </tr>
+
+</table>
+
+<table>
+    <tr>
+        <th>Instruction</th>
+        <th>Command</th>
+        <th>Equivalent C++</th>
+        <th>Behavior</th>
+    </tr>
+
+    <tr>
+        <th>%</th>
+        <td><tt>%</tt></td>
+        <td><tt>size_t temp = DP; DP = SDP; SDP = temp</tt></td>
+        <td>Swap the data pointer and the shadow data pointer</td>
+    </tr>
+
+    <tr>
+        <th>@</th>
+        <td><tt>(@id)</tt></td>
+        <td><tt>id:</tt></td>
+        <td>Define the next instruction using the identifier <tt>id</tt></td>
+    </tr>
+
+    <tr>
+        <th rowspan=3>!</th>
+        <td><tt>(!id)</tt></td>
+        <td><tt>goto id</tt></td>
+        <td>Jump (without return) to the instruction identified by <tt>id</tt></td>
+    </tr>
+    <tr>
+        <td><tt>(!:id)</tt></td>
+        <td><tt>goto id; return_point:</tt></td>
+        <td>Jump (with return) to the instruction identified by <tt>id</tt></td>
+    </tr>
+    <tr>
+        <td><tt>!</tt></td>
+        <td><tt>goto return_point</tt></td>
+        <td>Jump to most recent return point</td>
+    </tr>
+
+    <tr>
+        <th>{{}}</th>
+        <td><tt>{{comment}}</tt></td>
+        <td><tt>/* comment */</tt></td>
+        <td>Defines a block comment</td>
+    </tr>
+</table>
 
 * `(@id)` - Define the next instruction as identifier symbol `id`. Instructions may only be
              identified by a single identifier and identifiers may only be defined once.
