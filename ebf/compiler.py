@@ -43,7 +43,6 @@ class Compiler(object):
         self._preprocess()
         pattern = re.compile("([\_\>\<\+\-\[\]\.\,\|\&\^\~\\\/\@\!])([\:\#])?(0[xX][a-fA-F0-9]+|\-?[0-9]+)?(\(?\w+\)?)?")
         instructions = pattern.findall( self._working )
-        print(instructions)
 
         for i in instructions:
             if i[0] == '_':
@@ -56,7 +55,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "DP += 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "DP += *(" + str(i[2]) + ");\n"
+                    self._output += "DP += *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "DP += *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -68,7 +67,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "DP -= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "DP -= *(" + str(i[2]) + ");\n"
+                    self._output += "DP -= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "DP -= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -80,7 +79,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP += 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP += *(" + str(i[2]) + ");\n"
+                    self._output += "*DP += *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP += *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -92,7 +91,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP -= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP -= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP -= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP -= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -104,7 +103,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "while(*DP!=0) {\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "while(*(" + str(i[2]) + ")!=0) {\n"
+                    self._output += "while(*((cell_t*)" + str(i[2]) + ")!=0) {\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "while(*(DP + " + str(i[2]) + ")!=0) {\n"
                 elif i[1] == '#' and i[2] != '':
@@ -122,7 +121,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "putchar(*DP);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "putchar(*(" + str(i[2]) + ");\n"
+                    self._output += "putchar(*((cell_t*)" + str(i[2]) + "));\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "putchar(*(DP + " + str(i[2]) + "));\n"
                 elif i[1] == '#' and i[2] != '':
@@ -134,7 +133,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP=getchar();\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*(" + str(i[2]) + ")=getchar();\n"
+                    self._output += "*((cell_t*)" + str(i[2]) + ")=getchar();\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*(DP + " + str(i[2]) + ")=getchar();\n"
                 elif i[1] == '#' and i[2] != '':
@@ -146,7 +145,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP &= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP &= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP &= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP &= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -158,7 +157,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP |= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP |= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP |= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP |= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -170,7 +169,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP ^= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP ^= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP ^= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP ^= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -182,7 +181,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP = ~*DP;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP = ~*(" + str(i[2]) + ");\n"
+                    self._output += "*DP = ~*((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP = ~*(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -194,7 +193,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP <<= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP <<= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP <<= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP <<= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -206,7 +205,7 @@ class Compiler(object):
                 if i[1] == '' and i[2] == '':
                     self._output += "*DP >>= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP >>= *(" + str(i[2]) + ");\n"
+                    self._output += "*DP >>= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
                     self._output += "*DP >>= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
@@ -231,28 +230,3 @@ class Compiler(object):
                 raise SyntaxError("Unknown instruction")
 
         return self._output
-
-
-def main():
-    argparser = argparse.ArgumentParser( description="A python implementation of the Embedded "
-                                                     "Brainfuck compiler." )
-    argparser.add_argument( "-v", "--verbose", action='count',
-                            help="Enable verbose output while compiling the program." )
-    argparser.add_argument( "infile",
-                            help="A file containing Embedded Brainfuck instructions." )
-    argparser.add_argument( "outfile",
-                            help="A file to which the compiled program will be written." )
-
-
-    args = argparser.parse_args()
-
-    with open(args.infile, 'r') as f:
-        app = f.read()
-
-    c = Compiler(app)
-
-    print(c.compile())
-
-
-if __name__ == "__main__":
-    main()
