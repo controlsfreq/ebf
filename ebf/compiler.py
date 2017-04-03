@@ -1,6 +1,6 @@
 import re
-import sys
-import argparse
+import datetime
+import yaml
 
 class SyntaxError(Exception):
     def __init__(self, message):
@@ -8,32 +8,32 @@ class SyntaxError(Exception):
 
 class Compiler(object):
 
-    DATACELL_SIZE_8 = 0
-    DATACELL_SIZE_16 = 1
-    DATACELL_SIZE_32 = 2
-    DATACELL_SIZE_64 = 3
-
-    ENDIANNESS_HOST = 0
-    ENDIANNESS_LITTLE = 1
-    ENDIANNESS_BIG = 2
-
     def __init__(self, ebf):
-        #self._datacell_size = DATACELL_SIZE_8
-        #self._endianness = ENDIANNESS_HOST
         self._working = ebf
-        self._config = str()
-        self._output = str()
+        self._config = {"cell_width": 16,
+                        "includes": None,
+                        "init_hook": False,
+                        "cleanup_hook": False}
+        self._application = str()
+
+    def config(self):
+        return self._config
+
+    def application(self):
+        return self._application
 
     def _preprocess(self):
         # Read configuration blocks
-        self._config = re.findall( "^\#\%\((.*?)\)", self._working, flags=re.DOTALL+re.MULTILINE )
+        config_match = re.findall( "^\#\%\((.*?)\)", self._working, flags=re.DOTALL+re.MULTILINE )
 
         # Only one config block per application allowed
-        if len(self._config) > 1:
+        if len(config_match) > 1:
             raise SyntaxError("Multiple config blocks.")
 
+        self._config = yaml.load(config_match[0])
+
         # Remove configuration blocks
-        self._working = re.sub( "^\#\%\(.*\)", '', self._working, flags=re.DOTALL+re.MULTILINE )
+        self._working = re.sub( "^\#\%\(.*?\)", '', self._working, flags=re.DOTALL+re.MULTILINE )
         # Remove comment lines
         self._working = re.sub( "^\#.*", '', self._working, flags=re.MULTILINE )
         # Condense to a single line
@@ -47,169 +47,169 @@ class Compiler(object):
         for i in instructions:
             if i[0] == '_':
                 if i[1] == '' and i[2] == '':
-                    self._output += "__asm__ volatile (\"nop\");\n"
+                    self._application += "__asm__ volatile (\"nop\");\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '>':
                 if i[1] == '' and i[2] == '':
-                    self._output += "DP += 1;\n"
+                    self._application += "DP += 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "DP += *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "DP += *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "DP += *(DP + " + str(i[2]) + ");\n"
+                    self._application += "DP += *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "DP += " + str(i[2]) + ";\n"
+                    self._application += "DP += " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '<':
                 if i[1] == '' and i[2] == '':
-                    self._output += "DP -= 1;\n"
+                    self._application += "DP -= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "DP -= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "DP -= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "DP -= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "DP -= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "DP -= " + str(i[2]) + ";\n"
+                    self._application += "DP -= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '+':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP += 1;\n"
+                    self._application += "*DP += 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP += *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP += *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP += *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP += *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP += " + str(i[2]) + ";\n"
+                    self._application += "*DP += " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '-':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP -= 1;\n"
+                    self._application += "*DP -= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP -= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP -= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP -= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP -= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP -= " + str(i[2]) + ";\n"
+                    self._application += "*DP -= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '[':
                 if i[1] == '' and i[2] == '':
-                    self._output += "while(*DP!=0) {\n"
+                    self._application += "while(*DP!=0) {\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "while(*((cell_t*)" + str(i[2]) + ")!=0) {\n"
+                    self._application += "while(*((cell_t*)" + str(i[2]) + ")!=0) {\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "while(*(DP + " + str(i[2]) + ")!=0) {\n"
+                    self._application += "while(*(DP + " + str(i[2]) + ")!=0) {\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "while(" + str(i[2]) + "!=0) {\n"
+                    self._application += "while(" + str(i[2]) + "!=0) {\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == ']':
                 if i[1] == '' and i[2] == '':
-                    self._output += "}\n"
+                    self._application += "}\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '.':
                 if i[1] == '' and i[2] == '':
-                    self._output += "putchar(*DP);\n"
+                    self._application += "putchar(*DP);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "putchar(*((cell_t*)" + str(i[2]) + "));\n"
+                    self._application += "putchar(*((cell_t*)" + str(i[2]) + "));\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "putchar(*(DP + " + str(i[2]) + "));\n"
+                    self._application += "putchar(*(DP + " + str(i[2]) + "));\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "putchar(" + str(i[2]) + ");\n"
+                    self._application += "putchar(" + str(i[2]) + ");\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == ',':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP=getchar();\n"
+                    self._application += "*DP=getchar();\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*((cell_t*)" + str(i[2]) + ")=getchar();\n"
+                    self._application += "*((cell_t*)" + str(i[2]) + ")=getchar();\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*(DP + " + str(i[2]) + ")=getchar();\n"
+                    self._application += "*(DP + " + str(i[2]) + ")=getchar();\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP=" + str(i[2]) + ";\n"
+                    self._application += "*DP=" + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '&':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP &= *(DP+1);\n"
+                    self._application += "*DP &= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP &= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP &= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP &= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP &= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP &= " + str(i[2]) + ";\n"
+                    self._application += "*DP &= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '|':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP |= *(DP+1);\n"
+                    self._application += "*DP |= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP |= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP |= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP |= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP |= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP |= " + str(i[2]) + ";\n"
+                    self._application += "*DP |= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '^':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP ^= *(DP+1);\n"
+                    self._application += "*DP ^= *(DP+1);\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP ^= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP ^= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP ^= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP ^= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP ^= " + str(i[2]) + ";\n"
+                    self._application += "*DP ^= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '~':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP = ~*DP;\n"
+                    self._application += "*DP = ~*DP;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP = ~*((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP = ~*((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP = ~*(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP = ~*(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP = ~" + str(i[2]) + ";\n"
+                    self._application += "*DP = ~" + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '\\':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP <<= 1;\n"
+                    self._application += "*DP <<= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP <<= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP <<= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP <<= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP <<= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP <<= " + str(i[2]) + ";\n"
+                    self._application += "*DP <<= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
             elif i[0] == '/':
                 if i[1] == '' and i[2] == '':
-                    self._output += "*DP >>= 1;\n"
+                    self._application += "*DP >>= 1;\n"
                 elif i[1] == '' and i[2] != '':
-                    self._output += "*DP >>= *((cell_t*)" + str(i[2]) + ");\n"
+                    self._application += "*DP >>= *((cell_t*)" + str(i[2]) + ");\n"
                 elif i[1] == ':' and i[2] != '':
-                    self._output += "*DP >>= *(DP + " + str(i[2]) + ");\n"
+                    self._application += "*DP >>= *(DP + " + str(i[2]) + ");\n"
                 elif i[1] == '#' and i[2] != '':
-                    self._output += "*DP >>= " + str(i[2]) + ";\n"
+                    self._application += "*DP >>= " + str(i[2]) + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
@@ -221,7 +221,7 @@ class Compiler(object):
                     raise SyntaxError("Syntax error")
             elif i[0] == '!':
                 if i[3] != '':
-                    self._output += "goto " + i[3] + ";\n"
+                    self._application += "goto " + i[3] + ";\n"
                 else:
                     print(i)
                     raise SyntaxError("Syntax error")
@@ -229,4 +229,4 @@ class Compiler(object):
                 print(i)
                 raise SyntaxError("Unknown instruction")
 
-        return self._output
+        return self._application

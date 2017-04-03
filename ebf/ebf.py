@@ -1,4 +1,4 @@
-
+import os
 import sys
 import argparse
 from datetime import date
@@ -17,6 +17,10 @@ def main():
                             help="Enable verbose output while compiling the program." )
     argparser.add_argument( "infile",
                             help="A file containing Embedded Brainfuck instructions." )
+    argparser.add_argument( "--prefix", default="",
+                            help="The prefix to add to all output files." )
+    argparser.add_argument( "--out_dir", default="",
+                            help="The directory to write all output files to." )
 
     args = argparser.parse_args()
 
@@ -24,16 +28,18 @@ def main():
         app = f.read()
 
     c = compiler.Compiler(app)
-    ebf_c_template = Template(filename="templates/ebf.c.mako")
-    ebf_h_template = Template(filename="templates/ebf.h.mako")
-    main_c_template = Template(filename="templates/main.c.mako")
+    c.compile()
 
-    with open("ebf.h", 'w') as f:
-        f.write(ebf_h_template.render(date=date.today(), cell_type="uint8_t"))
-    with open("ebf.c", 'w') as f:
-        f.write(ebf_c_template.render(date=date.today()))
-    with open("main.c", 'w') as f:
-        f.write(main_c_template.render(brief="Main.", author="Liam Bucci", date=date.today(), copyright_blurb="Free", application=c.compile(), includes=None))
+    path = os.path.dirname(os.path.realpath(__file__))
+    ebf_h_template = Template(filename=os.path.join(path, "templates", "ebf.h.mako"))
+    main_c_template = Template(filename=os.path.join(path, "templates", "main.c.mako"))
+    kwargs = c.config()
+
+    with open(os.path.join( args.out_dir, args.prefix, "ebf.h"), 'w') as f:
+        f.write(ebf_h_template.render(strict_undefined=True, **kwargs))
+
+    with open(os.path.join( args.out_dir, args.prefix, "main.c"), 'w') as f:
+        f.write(main_c_template.render(strict_undefined=True, application=c.application(), **kwargs))
 
 
 if __name__ == "__main__":

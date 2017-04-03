@@ -1,32 +1,38 @@
-{{addu32big.ebf}}
-{{
-Adds two unsigned 32-bit numbers together.
-The first number must be stored in big endian format in the 4-7 cells.
-The second number must be stored in big endian format in the 8-11 cells.
-The result will be stored in big endian format in the 0-3 cells.
-The function must start with the data pointer at the zero cell.
-The function will return with the data pointer at the zero cell.
-The two input numbers are preserved.
-}}
+# addu32.ebf
 
-{{
-Cells:
-  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20
-[O1][O1][O1][O1][I1][I1][I1][I1][I2][I2][I2][I2][WW][WW][WW][WW][WW][WW][WW][WW][WW]
+# Adds two unsigned 32-bit numbers together.
+# The first number must be stored in big endian format in the 4-7 cells.
+# The second number must be stored in big endian format in the 8-11 cells.
+# The result will be stored in big endian format in the 0-3 cells.
+# The function must start with the data pointer at the zero cell.
+# The function will return with the data pointer at the zero cell.
+# The two input numbers are preserved.
 
-0-3: Result
-4-7: Input 1
-8-11: Input 2
-12: A
-13: B
-14: Cin
-15: A^B
-16: (A^B)&Cin
-17: A&B
-18: S
-19: Current bit position
-20: Loop Counter
-}}
+
+# Cells:
+#   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20
+# [O1][O1][O1][O1][I1][I1][I1][I1][I2][I2][I2][I2][WW][WW][WW][WW][WW][WW][WW][WW][WW]
+#
+# 0-3: Result
+# 4-7: Input 1
+# 8-11: Input 2
+# 12: A
+# 13: B
+# 14: Cin
+# 15: A^B
+# 16: (A^B)&Cin
+# 17: A&B
+# 18: S
+# 19: Current bit position
+# 20: Loop Counter
+
+#%(
+cell_size: 8
+includes:
+    - hooks.h
+en_init_hook: yes
+en_cleanup_hook: no
+)
 
 ([#0)
 (@addu32big)
