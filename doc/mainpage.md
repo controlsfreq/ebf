@@ -198,14 +198,14 @@ it is a configuration block, which is treated specially).
 ## Cheat Sheet
 
 <table cellspacing="0" cellpadding="0">
-    <tr style='height:20px; font-weight:bold; background-color:#4d79ff; text-align:center'>
+    <th style='height:20px; font-weight:bold; background-color:#4d79ff; text-align:center'>
         <td rowspan="2">Expression</td>
         <td colspan="2">Default</td>
         <td colspan="2">Absolute Address</td>
         <td colspan="2">Relative Address</td>
         <td colspan="2">Literal</td>
-    </tr>
-    <tr style='height:20px; text-align:center'>
+    </th>
+    <th style='height:20px; text-align:center'>
         <td style='background-color:#ccd9ff'>Syntax</td>
         <td style='background-color:#ccd9ff'>C Equivalent</td>
         <td style='background-color:#ccd9ff'>Syntax</td>
@@ -214,7 +214,7 @@ it is a configuration block, which is treated specially).
         <td style='background-color:#ccd9ff'>C Equivalent</td>
         <td style='background-color:#ccd9ff'>Syntax</td>
         <td style='background-color:#ccd9ff'>C Equivalent</td>
-    </tr>
+    </th>
     <tr style='height:20px; font-family:monospace;'>
         <td>&gt;</td>
         <td>&gt;</td>
