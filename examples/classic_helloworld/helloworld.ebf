@@ -1,3 +1,6 @@
+# helloworld.ebf
+# Shamelessly stolen from Wikipedia: https://en.wikipedia.org/wiki/Brainfuck
+
 #%(
 includes:
     - hooks.h
