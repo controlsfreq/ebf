@@ -1,17 +1,1 @@
-appdirs==1.4.3
-BeautifulSoup==3.2.1
-cffi==1.9.1
-chardet==2.3.0
-docutils==0.13.1
-Jinja2==2.7.3
-lxml==3.7.3
-MarkupSafe==0.23
-packaging==16.8
-Pillow==3.4.2
-ply==3.9
-pycparser==2.17
-Pygments==2.2.0
-pyparsing==2.1.10
-simplejson==3.10.0
-six==1.10.0
 Sphinx==1.2.3
