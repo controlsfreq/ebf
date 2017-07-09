@@ -24,3 +24,6 @@
 
 # Emacs temporary files
 *~
+
+# Sphinx files
+.*
