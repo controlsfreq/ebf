@@ -136,88 +136,101 @@ Below is a list of all of the absolute address instructions:
 * ``/*N`` - Bitwise right shift the current cell by the value at ``N`` and store the result in the
             current cell.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 4.2.2 Relative Address Instructions
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Relative address instructions interpret the `N` parameter as an offset from the current `DP`. That
-address is dereferenced and the value at that cell is used to perform the given instruction. For
-example, `+:0x100` reads the value at cell `DP + 256` and adds that value to the current cell.
+Relative address instructions interpret the ``N`` parameter as an offset from the current ``DP``.
+That address is dereferenced and the value at that cell is used to perform the given instruction.
+For example, ``+:0x100`` reads the value at cell ``DP + 256`` and adds that value to the current
+cell.
 
 Below is a list of all of the relative address instructions:
 
-* `>:N` - Increment data pointer by the value at `DP+N`.
-* `<:N` - Decrement data pointer by the value at `DP+N`.
-* `+:N` - Increment current cell value by the value at `DP+N`.
-* `-:N` - Decrement current cell value by the value at `DP+N`.
-* `.:N` - Write the value at `DP+N` to `stdout`.
-* `,:N` - Read a value from `stdin` and store it in cell `DP+N`.
-* `[:N` - If the value at `(DP+N)` is zero, jump forward to one after the matching `]`.
-* `|:N` - Bitwise OR the current cell and the value at `(DP+N)` and store the result in the current
-          cell.
-* `&:N` - Bitwise AND the current cell and the value at `(DP+N)` and store the result in the current
-          cell.
-* `^:N` - Bitwise XOR the current cell and the value at `(DP+N)` and store the result in the current
-          cell.
-* `~:N` - Bitwise NOT the value at `(DP+N)` and store the result in the current cell.
-* `\:N` - Bitwise left shift the current cell by the value in `(DP+N)` and store the result in the
-          current cell.
-* `/:N` - Bitwise right shift the current cell by the value in `(DP+N)` and store the result in the
-          current cell.
+* ``>:N`` - Increment data pointer by the value at ``DP+N``.
+* ``<:N`` - Decrement data pointer by the value at ``DP+N``.
+* ``+:N`` - Increment current cell value by the value at ``DP+N``.
+* ``-:N`` - Decrement current cell value by the value at ``DP+N``.
+* ``.:N`` - Write the value at ``DP+N`` to ``stdout``.
+* ``,:N`` - Read a value from ``stdin`` and store it in cell ``DP+N``.
+* ``[:N`` - If the value at ``(DP+N)`` is zero, jump forward to one after the matching ``]``.
+* ``|:N`` - Bitwise OR the current cell and the value at ``(DP+N)`` and store the result in the
+            current cell.
+* ``&:N`` - Bitwise AND the current cell and the value at ``(DP+N)`` and store the result in the
+            current cell.
+* ``^:N`` - Bitwise XOR the current cell and the value at ``(DP+N)`` and store the result in the
+            current cell.
+* ``~:N`` - Bitwise NOT the value at ``(DP+N)`` and store the result in the current cell.
+* ``\:N`` - Bitwise left shift the current cell by the value at ``(DP+N)`` and store the result in
+            the current cell.
+* ``/:N`` - Bitwise right shift the current cell by the value at ``(DP+N)`` and store the result in
+            the current cell.
 
-#### Literal Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+4.2.3 Literal Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Literal instructions interpret `N` parameter as a literal value. Similarly to absolute and relative,
-that value is used to perform the given instruction. For example, `+#0x1234` adds `0x1234` to the
-current cell.
+Literal instructions interpret ``N`` parameter as a literal value. Similarly to absolute and
+relative, that value is used to perform the given instruction. For example, ``+#0x1234`` adds
+``0x1234`` to the current cell.
 
 Below is a list of all of the literal instructions:
 
-* `>#N` - Increment data pointer by the value `N`.
-* `<#N` - Decrement data pointer by the value `N`.
-* `+#N` - Increment current cell value by the value `N`.
-* `-#N` - Decrement current cell value by the value `N`.
-* `.#N` - Write the value `N` to `stdout`.
-* `,#N` - Store the value `N` to the current cell.
-* `[#N` - If the value `N` is zero, jump forward to one after the matching `]`.
-* `|#N` - Bitwise OR the current cell and the value at `N` and store the result in the current cell.
-* `&#N` - Bitwise AND the current cell and the value at `N` and store the result in the current
-          cell.
-* `^#N` - Bitwise XOR the current cell and the value at `N` and store the result in the current
-          cell.
-* `~#N` - Bitwise NOT the value at `N` and store the result in the current cell.
-* `\#N` - Bitwise left shift the current cell by the value in `N` and store the result in the
-          current cell.
-* `/#N` - Bitwise right shift the current cell by the value in `N` and store the result in the
-          current cell.
+* ``>#N`` - Increment data pointer by the value ``N``.
+* ``<#N`` - Decrement data pointer by the value ``N``.
+* ``+#N`` - Increment current cell value by the value ``N``.
+* ``-#N`` - Decrement current cell value by the value ``N``.
+* ``.#N`` - Write the value ``N`` to ``stdout``.
+* ``,#N`` - Store the value ``N`` to the current cell.
+* ``[#N`` - If the value ``N`` is zero, jump forward to one after the matching ``]``.
+* ``|#N`` - Bitwise OR the current cell and the value at ``N`` and store the result in the current
+            cell.
+* ``&#N`` - Bitwise AND the current cell and the value at ``N`` and store the result in the current
+            cell.
+* ``^#N`` - Bitwise XOR the current cell and the value at ``N`` and store the result in the current
+            cell.
+* ``~#N`` - Bitwise NOT the value at ``N`` and store the result in the current cell.
+* ``\#N`` - Bitwise left shift the current cell by the value `N` and store the result in the
+            current cell.
+* ``/#N`` - Bitwise right shift the current cell by the value `N` and store the result in the
+            current cell.
 
-### Jump Instructions
+---------------------
+4.3 Jump Instructions
+---------------------
 
 Jump instructions allow the programmer to jump the instruction pointer to another location in the
-program. These instructions work the same as C labels and `goto`. Note, once a jump occurs there is
-no built-in concept of a return location.
+program. These instructions work the same as C labels and ``goto``. Note, once a jump occurs there
+is no built-in concept of a return location.
 
-* `@text` - Mark a label named `text`. This location may later be jumped to. Labels must begin with
-            an alphabetical character, but may contain alphanumeric and `_` characters.
-* `!text` - Jump to label `text`. If the label is not defined in the application it is considered a
-            syntax error. A jump may precede a label definition in the application.
-* `!(text)` - This is a special form of a jump that translates to a C function call. This allows the
-              programmer to call external functions. The function signature must be
-              `void text(void)`.
+* ``@label`` - Mark a label named "label". This location may later be jumped to. Labels must begin
+               with an alphabetical character, but may contain alphanumeric characters and the
+               underscore (``_``) character.
+* ``!label`` - Jump to label "label". If the label is not defined in the application it is
+               considered a syntax error. A jump may precede a label definition in the application.
+* ``!(func)`` - This is a special form of a jump that translates to a C function call. This allows
+                the programmer to call external functions. The function signature must be
+                ``void func(void)``, where ``func`` is any valid C function name.
 
-### Comments
+------------
+4.4 Comments
+------------
 
 Comments in the code may be made using two methods, a line comment or non-instruction characters.
 Non-instruction characters are ignored, therefore, any characters that are not interpreted as an
 instruction are considered a comment.
 
 A line comment is used to mark an entire line as a comment, thus allowing instruction characters
-and syntax to be used in a comment. Any line beginning with `#` is considered a line comment (unless
-it is a configuration block, which is treated specially).
+and syntax to be used in a comment. Any line beginning with ``#`` is considered a line comment
+(unless it is a configuration block, which is treated specially).
 
-# Appendix
+==========
+5 Appendix
+==========
 
-## Cheat Sheet
+---------------
+5.1 Cheat Sheet
+---------------
 
 <table cellspacing="0" cellpadding="0">
     <tr style='height:20px; font-weight:bold; background-color:#4d79ff; text-align:center'>
