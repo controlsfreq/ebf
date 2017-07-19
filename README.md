@@ -7,4 +7,4 @@ generated code also includes user implementable hooks, which may be used to setu
 or provide special functions that cannot be implemented in EBF (such as interrupt handling or
 complex device drivers).
 
-For more information on the language see the [documentation](doc/mainpage.md).
+For more information on the language see the [documentation](http://eightdatabits.github.io/ebf/html/#).
