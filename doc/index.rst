@@ -74,7 +74,7 @@ classic Brain Fuck program will still be compiled correctly.
 ----------------------
 
 Standard instructions are single character (unary) commands that typically operate using the current
-cell and/or data pointer.
+cell and/or data pointer. These are equivalent to classic Brain Fuck instructions.
 
 * ``>`` - Increment data pointer.
 * ``<`` - Decrement data pointer.
@@ -96,14 +96,14 @@ cell and/or data pointer.
 * ``/`` - Bitwise right shift the current cell by one and store the result in the current cell.
 
 -------------------------
-4.2 Modified Instructions
+4.2 Extended Instructions
 -------------------------
 
-Modified instructions are multi-character instructions that have a modifier character and take a
+Extended instructions are multi-character instructions that have a modifier character and take a
 number ``N`` as an operand. There are three different classes of extended commands:
 absolute address, relative address, and literal.
 
-The general form of a modified instruction is: ``IMN``, where ``I`` is the instruction character,
+The general form of an extended instruction is: ``IMN``, where ``I`` is the instruction character,
 ``M`` is the modifier character, and ``N`` is a number in either decimal (positive or negative),
 octal, or hexadecimal.
 
@@ -201,7 +201,7 @@ Below is a list of all of the literal instructions:
 
 Jump instructions allow the programmer to jump the instruction pointer to another location in the
 program. These instructions work the same as C labels and ``goto``. Note, once a jump occurs there
-is no built-in concept of a return location.
+is no built-in concept of a return location, unless user defined functions are used.
 
 * ``@label`` - Mark a label named "label". This location may later be jumped to. Labels must begin
                with an alphabetical character, but may contain alphanumeric characters and the
@@ -220,9 +220,10 @@ Comments in the code may be made using two methods, a line comment or non-instru
 Non-instruction characters are ignored, therefore, any characters that are not interpreted as an
 instruction are considered a comment.
 
-A line comment is used to mark an entire line as a comment, thus allowing instruction characters
-and syntax to be used in a comment. Any line beginning with ``#`` is considered a line comment
-(unless it is a configuration block, which is treated specially).
+A line comment is used to mark the rest of a line as a comment, thus allowing instruction characters
+and syntax to be used in a comment. All characters on a line after a ``#`` (which isn't part of an
+instruction) are considered part of a line comment and are ignored by the parser (unless it is a
+configuration block, which is treated specially).
 
 ==========
 5 Appendix
@@ -232,231 +233,183 @@ and syntax to be used in a comment. Any line beginning with ``#`` is considered 
 5.1 Cheat Sheet
 ---------------
 
-<table cellspacing="0" cellpadding="0">
-    <tr style='height:20px; font-weight:bold; background-color:#4d79ff; text-align:center'>
-        <td rowspan="2">Expression</td>
-        <td colspan="2">Default</td>
-        <td colspan="2">Absolute Address</td>
-        <td colspan="2">Relative Address</td>
-        <td colspan="2">Literal</td>
-    </tr>
-    <tr style='height:20px; text-align:center'>
-        <td style='background-color:#ccd9ff'>Syntax</td>
-        <td style='background-color:#ccd9ff'>C Equivalent</td>
-        <td style='background-color:#ccd9ff'>Syntax</td>
-        <td style='background-color:#ccd9ff'>C Equivalent</td>
-        <td style='background-color:#ccd9ff'>Syntax</td>
-        <td style='background-color:#ccd9ff'>C Equivalent</td>
-        <td style='background-color:#ccd9ff'>Syntax</td>
-        <td style='background-color:#ccd9ff'>C Equivalent</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>&gt;</td>
-        <td>&gt;</td>
-        <td>DP++</td>
-        <td>&gt;*N</td>
-        <td>DP+=*N</td>
-        <td>&gt;:N</td>
-        <td>DP+=*(DP+N)</td>
-        <td>&gt;#N</td>
-        <td>DP+=N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>&lt;</td>
-        <td>&lt;</td>
-        <td>DP--</td>
-        <td>&lt;*N</td>
-        <td>DP-=*N</td>
-        <td>&lt;:N</td>
-        <td>DP-=*(DP+N)</td>
-        <td>&lt;#N</td>
-        <td>DP-=N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>+</td>
-        <td>+</td>
-        <td>(*DP)++</td>
-        <td>+*N</td>
-        <td>*DP+=*N</td>
-        <td>+:N</td>
-        <td>*DP+=*(DP+N)</td>
-        <td>+#N</td>
-        <td>*DP+=N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>-</td>
-        <td>-</td>
-        <td>(*DP)--</td>
-        <td>-*N</td>
-        <td>*DP-=*N</td>
-        <td>-:N</td>
-        <td>*DP-=*(DP+N)</td>
-        <td>-#N</td>
-        <td>*DP-=N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>[</td>
-        <td>[</td>
-        <td>while(*DP!=0) {</td>
-        <td>[*N</td>
-        <td>while(*N!=0) {</td>
-        <td>[:N</td>
-        <td>while(*(DP+N)!=0) {</td>
-        <td>[#N</td>
-        <td>while(N!=0) {</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>]</td>
-        <td>]</td>
-        <td>} // end while</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>.</td>
-        <td>.</td>
-        <td>putchar(*DP)</td>
-        <td>.*N</td>
-        <td>putchar(*N)</td>
-        <td>.:N</td>
-        <td>putchar(*(DP+N))</td>
-        <td>.#N</td>
-        <td>putchar(N)</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>,</td>
-        <td>,</td>
-        <td>*DP=getchar()</td>
-        <td>,*N</td>
-        <td>*N=getchar()</td>
-        <td>,:N</td>
-        <td>*(DP+N)=getchar()</td>
-        <td>,#N</td>
-        <td>*DP=N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>&amp;</td>
-        <td>&amp;</td>
-        <td>*DP=*DP&amp;*(DP+1)</td>
-        <td>&amp;*N</td>
-        <td>*DP=*DP&amp;*N</td>
-        <td>&amp;:N</td>
-        <td>*DP=*DP&amp;*(DP+N)</td>
-        <td>&amp;#N</td>
-        <td>*DP=*DP&amp;N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>|</td>
-        <td>|</td>
-        <td>*DP=*DP|*(DP+1)</td>
-        <td>|*N</td>
-        <td>*DP=*DP|*N</td>
-        <td>|:N</td>
-        <td>*DP=*DP|*(DP+N)</td>
-        <td>|#N</td>
-        <td>*DP=*DP|N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>^</td>
-        <td>^</td>
-        <td>*DP=*DP^*(DP+1)</td>
-        <td>^*N</td>
-        <td>*DP=*DP^*N</td>
-        <td>^:N</td>
-        <td>*DP=*DP^*(DP+N)</td>
-        <td>^#N</td>
-        <td>*DP=*DP^N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>~</td>
-        <td>~</td>
-        <td>*DP=~*DP</td>
-        <td>~*N</td>
-        <td>*DP=~*N</td>
-        <td>~:N</td>
-        <td>*DP=~*(DP+N)</td>
-        <td>~#N</td>
-        <td>*DP=~N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>\</td>
-        <td>\</td>
-        <td>*DP=*DP&lt;&lt;1</td>
-        <td>\*N</td>
-        <td>*DP=*DP&lt;&lt;*N</td>
-        <td>\:N</td>
-        <td>*DP=*DP&lt;&lt;*(DP+N)</td>
-        <td>\#N</td>
-        <td>*DP=*DP&lt;&lt;N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>/</td>
-        <td>/</td>
-        <td>*DP=*DP&gt;&gt;1</td>
-        <td>/*N</td>
-        <td>*DP=*DP&gt;&gt;*N</td>
-        <td>/:N</td>
-        <td>*DP=*DP&gt;&gt;*(DP+N)</td>
-        <td>/#N</td>
-        <td>*DP=*DP&gt;&gt;N</td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>@</td>
-        <td>@text</td>
-        <td>text:</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>!</td>
-        <td>!text</td>
-        <td>goto text;</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>!()</td>
-        <td>!(text)</td>
-        <td>text();</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>#</td>
-        <td># comment</td>
-        <td>/* comment */</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-    <tr style='height:20px; font-family:monospace;'>
-        <td>#%()</td>
-        <td>#%(config)</td>
-        <td>N/A</td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-        <td style='background-color:#8c8c8c;'></td>
-    </tr>
-</table>
+These tables show the C equivalents of each instruction. ``DP`` is a pointer type to the current
+data cell.
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+5.1.1 Default Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These instructions are equivalent to classic Brain Fuck.
+
++-------------+------------+---------------------+------------------------------------------------+
+| Instruction | Syntax     | C Equivalent        | Notes                                          |
++=============+============+=====================+================================================+
+| ``>``       | ``>``      | ``DP++``            |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``<``       | ``<``      | ``DP--``            |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``+``       | ``+``      | ``(*DP)++``         |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``-``       | ``-``      | ``(*DP)--``         |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``[``       | ``[``      | ``while(*DP!=0) {`` |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``]``       | ``]``      | ``} // end while``  |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``.``       | ``.``      | ``putc(*DP)``       |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``,``       | ``,``      | ``*DP=getchar()``   |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``&``       | ``&``      | ``*DP=*DP&*(DP+1)`` |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``|``       | ``|``      | ``*DP=*DP|*(DP+1)`` |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``^``       | ``^``      | ``*DP=*DP^*(DP+1)`` |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``~``       | ``~``      | ``*DP=~*DP``        |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``\``       | ``\``      | ``*DP=*DP<<1``      |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+| ``/``       | ``/``      | ``*DP=*DP>>1``      |                                                |
++-------------+------------+---------------------+------------------------------------------------+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5.1.2 Absolute Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``N`` represents any valid address (in decimal, octal, or hexadecimal notation).
+
++-------------+------------+------------------------+---------------------------------------------+
+| Instruction | Syntax     | C Equivalent           | Notes                                       |
++=============+============+========================+=============================================+
+| ``>``       | ``>*N``    | ``DP+=*N``             |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``<``       | ``<*N``    | ``DP-=*N``             |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``+``       | ``+*N``    | ``*DP+=*N``            |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``-``       | ``-*N``    | ``*DP-=*N``            |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``[``       | ``[*N``    | ``while(*N!=0) {``     |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``]``       | ``]*N``    | ``if(*N==0) break; }`` | Allows extra conditional break.             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``.``       | ``.*N``    | ``putchar(*N)``        |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``,``       | ``,*N``    | ``*N=getchar()``       |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``&``       | ``&*N``    | ``*DP=*DP&*N``         |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``|``       | ``|*N``    | ``*DP=*DP|*N``         |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``^``       | ``^*N``    | ``*DP=*DP^*N``         |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``~``       | ``~*N``    | ``*DP=~*N``            |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``\``       | ``\*N``    | ``*DP=*DP<<*N``        |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+| ``/``       | ``/*N``    | ``*DP=*DP>>*N``        |                                             |
++-------------+------------+------------------------+---------------------------------------------+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+5.1.3 Relative Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``N`` represents any valid positive or negative number (in decimal, octal, or hexadecimal notation).
+This number is added to the current ``DP`` using C-style pointer arithmetic to determine which cell
+to operate on.
+
++-------------+------------+-----------------------------+----------------------------------------+
+| Instruction | Syntax     | C Equivalent                | Notes                                  |
++=============+============+=============================+========================================+
+| ``>``       | ``>:N``    | ``DP+=*(DP+N)``             |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``<``       | ``<:N``    | ``DP-=*(DP+N)``             |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``+``       | ``+:N``    | ``*DP+=*(DP+N)``            |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``-``       | ``-:N``    | ``*DP-=*(DP+N)``            |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``[``       | ``[:N``    | ``while(*(DP+N)!=0) {``     |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``]``       | ``]:N``    | ``if(*(DP+N)==0) break; }`` | Allows extra conditional break.        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``.``       | ``.:N``    | ``putchar(*(DP+N))``        |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``,``       | ``,:N``    | ``*(DP+N)=getchar()``       |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``&``       | ``&:N``    | ``*DP=*DP&*(DP+N)``         |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``|``       | ``|:N``    | ``*DP=*DP|*(DP+N)``         |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``^``       | ``^:N``    | ``*DP=*DP^*(DP+N)``         |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``~``       | ``~:N``    | ``*DP=~*(DP+N)``            |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``\``       | ``\:N``    | ``*DP=*DP<<*(DP+N)``        |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+| ``/``       | ``/:N``    | ``*DP=*DP>>*(DP+N)``        |                                        |
++-------------+------------+-----------------------------+----------------------------------------+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+5.1.4 Literal Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``N`` represents any valid positive or negative number (in decimal, octal, or hexadecimal notation).
+This literal number is used in the operation.
+
++-------------+------------+-----------------------+----------------------------------------------+
+| Instruction | Syntax     | C Equivalent          | Notes                                        |
++=============+============+=======================+==============================================+
+| ``>``       | ``>#N``    | ``DP+=N``             |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``<``       | ``<#N``    | ``DP-=N``             |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``+``       | ``+#N``    | ``*DP+=N``            |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``-``       | ``-#N``    | ``*DP-=N``            |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``[``       | ``[#N``    | ``while(N!=0) {``     |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``]``       | ``]#N``    | ``if(N==0) break; }`` | Allows forced break (e.g. ``if()`` pattern). |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``.``       | ``.#N``    | ``putchar(N)``        |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``,``       | ``,#N``    | ``*DP=N``             |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``&``       | ``&#N``    | ``*DP=*DP&N``         |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``|``       | ``|#N``    | ``*DP=*DP|N``         |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``^``       | ``^#N``    | ``*DP=*DP^N``         |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``~``       | ``~#N``    | ``*DP=~N``            |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``\``       | ``\#N``    | ``*DP=*DP<<N``        |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+| ``/``       | ``/#N``    | ``*DP=*DP>>N``        |                                              |
++-------------+------------+-----------------------+----------------------------------------------+
+
+^^^^^^^^^^^^^^^^^^^^^^^^
+5.1.5 Misc. Instructions
+^^^^^^^^^^^^^^^^^^^^^^^^
+
++-------------+----------------+-------------------+----------------------------------------------+
+| Instruction | Syntax         | C Equivalent      | Notes                                        |
++=============+================+===================+==============================================+
+| ``@``       | ``@label``     | ``label:``        | Label must conform to C standard.            |
++-------------+----------------+-------------------+----------------------------------------------+
+| ``!``       | ``!label``     | ``goto label;``   | Label must conform to C standard.            |
++-------------+----------------+-------------------+----------------------------------------------+
+| ``!()``     | ``!(func)``    | ``func();``       | External function call. Function must be     |
+|             |                |                   | defined by the user with signature:          |
+|             |                |                   | ``void func(void)``.                         |
++-------------+----------------+-------------------+----------------------------------------------+
+| ``#``       | ``# comment``  | ``/* comment */`` | Everything until the next newline is         |
+|             |                |                   | considered a comment.                        |
++-------------+----------------+-------------------+----------------------------------------------+
+| ``#%()``    | ``#%(config)`` | N/A               | Multi-line YAML configuration block (one per |
+|             |                |                   | application). See Configuration section for  |
+|             |                |                   | more info.                                   |
++-------------+----------------+-------------------+----------------------------------------------+
